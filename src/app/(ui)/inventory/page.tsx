@@ -15,6 +15,8 @@ const InventoryPage = async (props: PageProps) => {
     const classifieds = await getInventory(searchParams);
     const count = await prisma.classified.count();
 
+    // const favourites = await
+
     return (
         <>
             <ClassifiedsList classifieds={classifieds}/>

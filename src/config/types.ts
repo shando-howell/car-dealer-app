@@ -19,3 +19,9 @@ export type ClassifiedWithImages = Prisma.ClassifiedGetPayload<{
         images: true;
     }
 }>
+
+export enum MultiStepFormEnum {
+    WELCOME = 1,
+    SELECT_DATE = 2,
+    SUBMIT_DETAILS = 3,
+}

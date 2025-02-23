@@ -1,5 +1,5 @@
 import { routes } from "@/config/route"
-import { ClassifiedWithImages } from "@/config/types";
+import { ClassifiedWithImages, MultiStepFormEnum } from "@/config/types";
 import { Classified, Colour, FuelType, Prisma, Transmission } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
@@ -7,6 +7,7 @@ import { HTMLParser } from "../shared/html-parser";
 import { Cog, Fuel, GaugeCircle, Paintbrush2 } from "lucide-react";
 import { OdoUnit } from "@prisma/client";
 import { Button } from "../ui/button";
+import { FavouriteButton } from "./favourite-button";
 
 interface ClassifiedCardProps {
     classified: ClassifiedWithImages;
@@ -117,6 +118,7 @@ export const ClassfiedCard = (props: ClassifiedCardProps) => {
                         // quality={25}
                     />
                 </Link>
+                <FavouriteButton />
                 <div className="absolute top-2.5 right-3.5 bg-primary text-slate-50 font-bold px-2 py-1 rounded">
                     <p className="text-xs lg:text-base xl:text-lg font-semibold">
                         {classified.price}
@@ -160,9 +162,23 @@ export const ClassfiedCard = (props: ClassifiedCardProps) => {
                 <div className="mt-4 flex flex-col lg:flex-row space-y-2 lg:space-y-0
                 lg:gap-x-2 w-full">
                     <Button className="flex-1 transition-colors hover:border-white 
-                    hover:text-white py-2 lg:py-2.5 h-full text-xs md:text-sm xl:text-base"
-
-                    ></Button>
+                        hover:text-white py-2 lg:py-2.5 h-full text-xs md:text-sm xl:text-base"
+                        asChild
+                        variant="outline"   
+                        size="sm"
+                    >
+                        <Link href={routes.reserve(classified.slug, MultiStepFormEnum.WELCOME)}>
+                            Reserve
+                        </Link>         
+                    </Button>
+                    <Button className="flex-1 py-2 lg:py-2.5 h-full text-xs md:text-sm xl:text-base"
+                        asChild
+                        size="sm"
+                    >
+                        <Link href={routes.singleClassified(classified.slug)}>
+                            View Details
+                        </Link>         
+                    </Button>
                 </div>
             </div>
         </div>
