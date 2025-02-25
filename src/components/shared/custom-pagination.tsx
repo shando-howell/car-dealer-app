@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 interface PaginationProps {
     baseUrl: string;
     totalPages: number;
-    maxVisiblePages: number | undefined;
+    maxVisiblePages?: number;
     styles: {
         paginationRoot: string;
         paginationPrevious: string;
@@ -82,18 +82,79 @@ export const CustomPagination = (props: PaginationProps) => {
                     />
                 </PaginationItem>
 
-                <PaginationItem>
-                    <PaginationLink>...</PaginationLink>
-                </PaginationItem>
+                {visibleRange.start > 1 && (
+                    <PaginationItem className="hidden lg:block">
+                        <PaginationLink
+                            className={styles.paginationLink}
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleEllipsisClick("left");
+                            }}
+                        >...</PaginationLink>
+                    </PaginationItem>
+                )}
 
-                {/* Pages go here */}
+                {Array.from({length: visibleRange.end - visibleRange.start + 1},
+                    (_, index) => visibleRange.start + index,
+                ).map((pageNumber) => {
+                    const isActive = pageNumber === currentPage;
+                    let rel = "";
+
+                    if (pageNumber === currentPage - 1) {
+                        rel = "prev"
+                    }
+
+                    if (pageNumber === currentPage + 1) {
+                        rel = "next"
+                    }
+
+                    return (
+                        <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                                isActive={isActive}
+                                href={createPageUrl(pageNumber)}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setPage(pageNumber);
+                                }}
+                                className={cn(
+                                    styles.paginationLink,
+                                    isActive && styles.paginationLinkActive,
+                                )}
+                                {...(rel ? { rel } : {})}
+                            >
+                                {pageNumber}
+                            </PaginationLink>
+                        </PaginationItem>
+                    )
+                })}
+
+                {visibleRange.end < totalPages && (
+                    <PaginationItem className="hidden lg:block">
+                        <PaginationLink
+                            className={styles.paginationLink}
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleEllipsisClick("right");
+                            }}
+                        >...</PaginationLink>
+                    </PaginationItem>
+                )}
 
                 <PaginationItem>
-                    <PaginationLink>...</PaginationLink>
-                </PaginationItem>
-
-                <PaginationItem>
-                    <PaginationNext />
+                    <PaginationNext 
+                        className={cn(
+                            currentPage >= totalPages && "hidden",
+                            styles.paginationNext,
+                        )}
+                        href={createPageUrl(currentPage + 1)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (currentPage < totalPages) setPage(currentPage + 1);
+                        }}
+                    />
                 </PaginationItem>
             </PaginationContent>
         </PaginationRoot>
