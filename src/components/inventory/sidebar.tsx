@@ -8,6 +8,7 @@ import { routes } from "@/config/route";
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
 import { SearchInput } from "../shared/search-input";
+import { TaxonomyFilters } from "./taxonomy-filters";
 
 interface SidebarProps extends AwaitedPageProps {
     minMaxValues: any;
@@ -74,7 +75,14 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
                 <div className="mt-2" />
             </div>
             <div className="p-4">
-                <SearchInput />
+                <SearchInput 
+                    placeholder="Search..."
+                    className="w-full px-3 py-2 border rounded-md focus:outline-hidden
+                    focus:ring-2 focus:ring-blue-500"
+                />
+            </div>
+            <div className="p-4 space-y-2">
+                <TaxonomyFilters/>
             </div>
         </div>
     )

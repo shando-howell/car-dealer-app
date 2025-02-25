@@ -4,7 +4,7 @@ import { useQueryState } from "nuqs";
 import { ChangeEvent, useRef } from "react";
 import { useCallback } from "react";
 import debounce from "debounce";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +42,11 @@ export const SearchInput = (props: SearchInputProps) => {
         handleSearch(newValue);
     }
 
+    const clearSearch = () => {
+        setSearch(null);
+        if (inputRef.current) inputRef.current.value = "";
+    }
+
     return (
         <form className="relative flex-1">
             <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -53,6 +58,14 @@ export const SearchInput = (props: SearchInputProps) => {
                 type="text"
                 {...rest}
             />
+
+            {q && (
+                <XIcon
+                    className="absolute right-2.5 top-2.5 h-4 w-4 text-white bg-gray-500 p-0.5
+                    rounded-full cursor-pointer"
+                    onClick={clearSearch}
+                />
+            )}
         </form>
     )
 }
