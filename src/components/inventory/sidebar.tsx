@@ -3,7 +3,7 @@
 import type { AwaitedPageProps } from "@/config/types";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryStates } from "nuqs";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { routes } from "@/config/route";
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
@@ -53,6 +53,25 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
         const url = new URL(routes.inventory, env.NEXT_PUBLIC_APP_URL);
         window.location.replace(url.toString());
         setFilterCount(0);
+    };
+
+    const handleChange = async (
+        e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    ) => {
+        const { name, value } = e.target;
+
+        setQueryStates({
+            [name]: value || null
+        })
+
+        if (name === 'make') {
+            setQueryStates({
+                model: null,
+                modelVariant: null,
+            })
+        }
+
+        router.refresh();
     }
 
     return (
@@ -82,7 +101,10 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
                 />
             </div>
             <div className="p-4 space-y-2">
-                <TaxonomyFilters/>
+                <TaxonomyFilters 
+                    searchParams={searchParams}
+                    handleChange={handleChange}
+                />
             </div>
         </div>
     )
