@@ -49,20 +49,58 @@ const buildClassifiedFilterQuery = (
 
     const taxonomyFilters = ["make", "model", "modelVariant"];
 
+    const rangeFilters = {
+        minYear: "year",
+        maxYear: "year",
+        minPrice: "price",
+        maxPrice: "price",
+        minReading: "odoReading",
+        maxReading: "odoReading"
+    }
+
     const mapParamsToFields = keys.reduce(
         (acc, key) => {
             const value = searchParams?.[key] as string | undefined;
             if (!value) return acc;
 
             if (taxonomyFilters.includes(key)) {
-                acc[key] = {id: Number(value)}
+                acc[key] = {id: Number(value)};
+            } else if (key in rangeFilters) {
+                const field = rangeFilters[key as keyof typeof rangeFilters];
+                acc[field] = acc[field] || {};
+                if (key.startsWith("min")) {
+                    acc[field].gte = Number(value);
+                } else if (key.startsWith('max')) {
+                    acc[field].lte = Number(value);
+                }
             }
+
             return acc;
         }, 
         {} as { [key: string]: any },
     );
 
-    return {};
+    return {
+        status: ClassifiedStatus.LIVE,
+
+        ...(searchParams?.q && {
+            OR: [
+                {
+                    title: {
+                        contains: searchParams.q as string,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    description: {
+                        contains: searchParams.q as string,
+                        mode: "insensitive"
+                    },
+                },
+            ],
+        }),
+        ...mapParamsToFields
+    };
 };
 
 const getInventory = async (searchParams: AwaitedPageProps['searchParams']) => {
@@ -75,7 +113,7 @@ const getInventory = async (searchParams: AwaitedPageProps['searchParams']) => {
     const offset = (page - 1) * CLASSIFIEDS_PER_PAGE
 
     return prisma.classified.findMany({
-        where: {},
+        where: buildClassifiedFilterQuery(searchParams),
         include: { images: { take: 1 } },
         skip: offset,
         take: CLASSIFIEDS_PER_PAGE
@@ -86,7 +124,19 @@ const InventoryPage = async (props: PageProps) => {
     const searchParams = await props.searchParams;
     const classifieds = await getInventory(searchParams);
     const count = await prisma.classified.count({
-        where: {},
+        where: buildClassifiedFilterQuery(searchParams),
+    });
+
+    const minMaxResult = await prisma.classified.aggregate({
+        where: { status: ClassifiedStatus.LIVE },
+        _min: {
+            year: true,
+        },
+        _max: {
+            price: true,
+            year: true,
+            odoReading: true,
+        },
     });
 
     const sourceId = await getSourceId()
@@ -96,7 +146,7 @@ const InventoryPage = async (props: PageProps) => {
     return (
         <>
             <div className="flex">
-            <Sidebar minMaxValues={null} searchParams={searchParams}/>
+            <Sidebar minMaxValues={minMaxResult} searchParams={searchParams}/>
 
                 <div className="flex p-4 bg-white">
                     <div className="flex space-y-2 flex-col items-center justify-center
