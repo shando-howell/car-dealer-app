@@ -1,85 +1,27 @@
 "use client";
 
 import { routes } from "@/config/route"
-import { ClassifiedWithImages, Favourites, MultiStepFormEnum } from "@/config/types";
-import { Classified, Colour, FuelType, Prisma, Transmission } from "@prisma/client"
-import Image from "next/image"
+import { ClassifiedWithImages, MultiStepFormEnum } from "@/config/types";
 import Link from "next/link"
 import { HTMLParser } from "../shared/html-parser";
 import { Cog, Fuel, GaugeCircle, Paintbrush2 } from "lucide-react";
-import { OdoUnit } from "@prisma/client";
 import { Button } from "../ui/button";
 import { FavouriteButton } from "./favourite-button";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { 
+    formatOdometerUnit,
+    formatNumber,
+    formatTransmission,
+    formatFuelType,
+    formatColour,
+    formatPrice
+} from "@/lib/utils";
 
 interface ClassifiedCardProps {
     classified: ClassifiedWithImages;
     favourites: number[];
-}
-
-function formatNumber(
-    num: number | null,
-    options?: Intl.NumberFormatOptions,
-) {
-    if (!num) return '0';
-
-    return new Intl.NumberFormat("en-GB", options).format(num);
-}
-
-function formatOdometerUnit(unit: OdoUnit) {
-    return unit === OdoUnit.MILES ? "mi" : "km";
-}
-
-function formatTransmission(transmission: Transmission) {
-    return transmission === Transmission.AUTOMATIC ? "Automatic" : "Manual";
-}
-
-function formatFuelType(fuelType: FuelType) {
-    switch(fuelType) {
-        case FuelType.PETROL:
-            return "Petrol"
-        case FuelType.DIESEL:
-            return "Diesel"
-        case FuelType.ELECTRIC:
-            return "Electric"
-        case FuelType.HYBRID:
-            return "Hybrid"
-        default:
-            return "Unknown";
-    }
-}
-
-function formatColour(colour: Colour) {
-    switch(colour) {
-        case Colour.BLACK:
-            return 'Black'
-        case Colour.WHITE:
-            return 'White'
-        case Colour.SILVER:
-            return 'Silver'
-        case Colour.BLUE:
-            return 'Blue'
-        case Colour.BROWN:
-            return 'Brown'
-        case Colour.GOLD:
-            return 'Gold'
-        case Colour.GREEN:
-            return 'Green'
-        case Colour.GREY:
-            return 'Grey'
-        case Colour.ORANGE:
-            return 'Orange'
-        case Colour.PINK:
-            return 'Pink'
-        case Colour.PURPLE:
-            return 'Purple'
-        case Colour.YELLOW:
-            return 'Yellow'
-        default:
-            return 'Unknown'
-    }
 }
 
 const getKeyClassifiedInfo = (classified: ClassifiedWithImages) => {
@@ -148,7 +90,10 @@ export const ClassfiedCard = (props: ClassifiedCardProps) => {
                         />
                         <div className="absolute top-2.5 right-3.5 bg-primary text-slate-50 font-bold px-2 py-1 rounded">
                             <p className="text-xs lg:text-base xl:text-lg font-semibold">
-                                {classified.price}
+                                {formatPrice({
+                                    price: classified.price,
+                                    currency: classified.currency,
+                                })}
                             </p>
                         </div>
                     </div>

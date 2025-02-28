@@ -6,16 +6,19 @@ import { parseAsString, useQueryStates } from "nuqs";
 import { ChangeEvent, useEffect, useState } from "react";
 import { routes } from "@/config/route";
 import { env } from "@/env";
-import { cn } from "@/lib/utils";
+import { cn, formatColour, formatFuelType, formatOdometerUnit, formatTransmission } from "@/lib/utils";
 import { SearchInput } from "../shared/search-input";
 import { TaxonomyFilters } from "./taxonomy-filters";
 import { RangeFilter } from "./range-filters";
-import { Prisma } from "@prisma/client";
+import { BodyType, Colour, CurrencyCode, FuelType, OdoUnit, Prisma, Transmission } from "@prisma/client";
+import { Select } from "../ui/select";
 
 interface SidebarProps extends AwaitedPageProps {
     minMaxValues: Prisma.GetClassifiedAggregateType<{
         _min: {
             year: true;
+            price: true;
+            odoReading: true;
         },
         _max: {
             year: true;
@@ -119,6 +122,16 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
                 />
 
                 <RangeFilter
+                    label="Price"
+                    minName="minPrice"
+                    maxName="maxPrice"
+                    defaultMin={_min.price || 0}
+                    defaultMax={_max.price || 21474836}
+                    handleChange={handleChange}
+                    searchParams={searchParams}
+                 />
+
+                <RangeFilter
                     label="Year"
                     minName="minYear"
                     maxName="maxYear"
@@ -126,7 +139,90 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
                     defaultMax={_max.year || new Date().getFullYear()}
                     handleChange={handleChange}
                     searchParams={searchParams}
+                    increment={10000}
+                    thousandSeparator
+                    currency={{
+                        currencyCode: "GBP"
+                    }}
                  />
+
+                <RangeFilter
+                    label="Odometer Reading"
+                    minName="minReading"
+                    maxName="maxReading"
+                    defaultMin={_min.odoReading || 0}
+                    defaultMax={_max.odoReading || 1000000}
+                    handleChange={handleChange}
+                    searchParams={searchParams}
+                    increment={5000}
+                    thousandSeparator
+                 />
+                <Select 
+                    label="Currency" 
+                    name="currency" 
+                    value={queryStates.currency || ""} 
+                    onChange={handleChange} 
+                    options={Object.values(CurrencyCode).map((value) => (
+                        {
+                            label: value,
+                            value,
+                        }
+                ))}/>
+                <Select 
+                    label="Odometer Unit" 
+                    name="odoUnit" 
+                    value={queryStates.odoUnit} 
+                    onChange={handleChange} 
+                    options={Object.values(OdoUnit).map((value) => (
+                        {
+                            label: formatOdometerUnit(value),
+                            value,
+                        }
+                ))}/>
+                <Select 
+                    label="Transmission" 
+                    name="transmission" 
+                    value={queryStates.transmission || ""} 
+                    onChange={handleChange} 
+                    options={Object.values(Transmission).map((value) => (
+                        {
+                            label: formatTransmission(value),
+                            value,
+                        }
+                ))}/>
+                <Select 
+                    label="Fuel Type" 
+                    name="fuelType" 
+                    value={queryStates.fuelType || ""} 
+                    onChange={handleChange} 
+                    options={Object.values(FuelType).map((value) => (
+                        {
+                            label: formatFuelType(value),
+                            value,
+                        }
+                ))}/>
+                <Select 
+                    label="Body Type" 
+                    name="bodyType" 
+                    value={queryStates.bodyType || ""} 
+                    onChange={handleChange} 
+                    options={Object.values(BodyType).map((value) => (
+                        {
+                            label: value, // formatBodyType()
+                            value,
+                        }
+                ))}/>
+                <Select 
+                    label="Colour" 
+                    name="colour" 
+                    value={queryStates.colour || ""} 
+                    onChange={handleChange} 
+                    options={Object.values(Colour).map((value) => (
+                        {
+                            label: formatColour(value),
+                            value,
+                        }
+                ))}/>
             </div>
         </div>
     )

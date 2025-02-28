@@ -131,6 +131,8 @@ const InventoryPage = async (props: PageProps) => {
         where: { status: ClassifiedStatus.LIVE },
         _min: {
             year: true,
+            price: true,
+            odoReading: true,
         },
         _max: {
             price: true,
