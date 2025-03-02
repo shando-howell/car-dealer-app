@@ -10,6 +10,7 @@ import { routes } from "@/config/route";
 import { z } from "zod";
 import { CLASSIFIEDS_PER_PAGE } from "@/config/constants";
 import { Sidebar } from "@/components/inventory/sidebar";
+import { DialogFilters } from "@/components/inventory/dialog-filters";
 
 const PageSchema = z
     .string()
@@ -58,6 +59,17 @@ const buildClassifiedFilterQuery = (
         maxReading: "odoReading"
     }
 
+    const numFilters = ["seats", "doors"];
+    const enumFilters = [
+        "odoUnit", 
+        "currency", 
+        "transmission", 
+        "bodyType",
+        "fuelType",
+        "colour", 
+        "ulezCompliance"
+    ]
+
     const mapParamsToFields = keys.reduce(
         (acc, key) => {
             const value = searchParams?.[key] as string | undefined;
@@ -65,6 +77,10 @@ const buildClassifiedFilterQuery = (
 
             if (taxonomyFilters.includes(key)) {
                 acc[key] = {id: Number(value)};
+            } else if (enumFilters.includes(key)) {
+                acc[key] = value.toUpperCase()
+            } else if (numFilters.includes(key)) {
+                acc[key] = Number(value);
             } else if (key in rangeFilters) {
                 const field = rangeFilters[key as keyof typeof rangeFilters];
                 acc[field] = acc[field] || {};
@@ -157,22 +173,26 @@ const InventoryPage = async (props: PageProps) => {
                             <h2 className="text-sm md:text-base lg:text-xl font-semibold min-w-fit">
                                 We have found {count} classifieds...
                             </h2>
-                            {/* <DialogFilters /> */}
+                            <DialogFilters 
+                                minMaxValues={minMaxResult}
+                                count={count}
+                                searchParams={searchParams}
+                            />
                         </div>
+                        <ClassifiedsList 
+                            classifieds={classifieds} 
+                            favourites={favourites ? favourites.ids : []}
+                        />
                         <CustomPagination
                             baseUrl={routes.inventory}
                             totalPages={totalPages}
                             styles={{
-                                paginationRoot: "flex justify-end",
+                                paginationRoot: "justify-center lg:hidden pt-12",
                                 paginationPrevious: "",
                                 paginationNext: "",
                                 paginationLink: "border-none active:border text-black",
                                 paginationLinkActive: ""
                             }}
-                        />
-                        <ClassifiedsList 
-                            classifieds={classifieds} 
-                            favourites={favourites ? favourites.ids : []}
                         />
                     </div>
                 </div>

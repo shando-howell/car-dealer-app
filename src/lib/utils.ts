@@ -1,4 +1,12 @@
-import { Colour, CurrencyCode, FuelType, OdoUnit, Transmission } from "@prisma/client";
+import { 
+  BodyType, 
+  Colour, 
+  CurrencyCode, 
+  FuelType, 
+  OdoUnit, 
+  Transmission, 
+  ULEZCompliance
+} from "@prisma/client";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -9,6 +17,29 @@ export function cn(...inputs: ClassValue[]) {
 interface FormatPriceArgs {
   price: number | null;
   currency: CurrencyCode | null
+}
+
+export function formatUlezCompliance(ulezCompliance: ULEZCompliance) {
+  return ulezCompliance === ULEZCompliance.EXEMPT ? "Exempt" : "Non-Exempt"
+}
+
+export function formatBodyType(bodyType: BodyType) {
+  switch(bodyType) {
+    case BodyType.CONVERTIBLE:
+      return "Convertible";
+    case BodyType.COUPE:
+      return "Coupe";
+    case BodyType.HATCHBACK:
+      return "Hatchback";
+    case BodyType.SUV:
+      return "SUV";
+    case BodyType.WAGON:
+      return "Wagon";
+    case BodyType.SEDAN:
+      return "Sedan";
+    default:
+      return "Unknown";
+  }
 }
 
 export function formatPrice({price, currency}: FormatPriceArgs) {

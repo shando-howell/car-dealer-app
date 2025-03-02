@@ -6,27 +6,13 @@ import { parseAsString, useQueryStates } from "nuqs";
 import { ChangeEvent, useEffect, useState } from "react";
 import { routes } from "@/config/route";
 import { env } from "@/env";
-import { cn, formatColour, formatFuelType, formatOdometerUnit, formatTransmission } from "@/lib/utils";
+import { cn, formatBodyType, formatColour, formatFuelType, formatOdometerUnit, formatTransmission, formatUlezCompliance } from "@/lib/utils";
 import { SearchInput } from "../shared/search-input";
 import { TaxonomyFilters } from "./taxonomy-filters";
 import { RangeFilter } from "./range-filters";
-import { BodyType, Colour, CurrencyCode, FuelType, OdoUnit, Prisma, Transmission } from "@prisma/client";
+import { BodyType, Colour, CurrencyCode, FuelType, OdoUnit, Prisma, Transmission, ULEZCompliance } from "@prisma/client";
 import { Select } from "../ui/select";
-
-interface SidebarProps extends AwaitedPageProps {
-    minMaxValues: Prisma.GetClassifiedAggregateType<{
-        _min: {
-            year: true;
-            price: true;
-            odoReading: true;
-        },
-        _max: {
-            year: true;
-            odoReading: true;
-            price: true;
-        }
-    }>
-}
+import { SidebarProps } from "@/config/types";
 
 export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
     const router = useRouter();
@@ -90,7 +76,7 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
     }
 
     return (
-        <div className="py-4 bg-white border-r border-muted block">
+        <div className="py-4 bg-white border-r border-muted hidden lg:block">
             <div>
                 <div className="text-lg w-[16.25rem] font-semibold flex justify-between px-4">
                     <span>Filters</span>
@@ -208,7 +194,7 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
                     onChange={handleChange} 
                     options={Object.values(BodyType).map((value) => (
                         {
-                            label: value, // formatBodyType()
+                            label: formatBodyType(value),
                             value,
                         }
                 ))}/>
@@ -223,6 +209,41 @@ export const Sidebar = ({minMaxValues, searchParams}: SidebarProps) => {
                             value,
                         }
                 ))}/>
+                <Select 
+                    label="ULEZ Compliance" 
+                    name="ulezCompliance" 
+                    value={queryStates.ulezCompliance || ""} 
+                    onChange={handleChange} 
+                    options={Object.values(ULEZCompliance).map((value) => (
+                        {
+                            label: formatUlezCompliance(value),
+                            value,
+                        }
+                ))}/>
+
+                <Select 
+                    label="Doors" 
+                    name="doors" 
+                    value={queryStates.doors || ""} 
+                    onChange={handleChange} 
+                    options={Array.from({length: 6}).map((_, i) => {
+                        return {
+                            label: Number(i + 1).toString(),
+                            value: Number(i + 1).toString()
+                        }
+                })}/>
+
+                <Select 
+                    label="Seats" 
+                    name="seats" 
+                    value={queryStates.seats || ""} 
+                    onChange={handleChange} 
+                    options={Array.from({length: 8}).map((_, i) => {
+                        return {
+                            label: Number(i + 1).toString(),
+                            value: Number(i + 1).toString()
+                        }
+                })}/>
             </div>
         </div>
     )
